@@ -70,20 +70,22 @@
 	 ("C-x C-f" . counsel-find-file)
 	 :map minibuffer-local-map
 	 ("C-r" . 'counsel-minibuffer-history))
-;;  :config
-  ;;  (setq ivy-initial-inputs-alist nil) ;; Don't start searches with ^
- )
+  :config
+  (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
 
 ;; NOTE: The first time you load your configuration on a new machine,
-;; you'll need to run the following command interactivley so that
+;; you'll need to run the following commands interactivley so that
 ;; mode line icons display correctly:
 ;;
 ;; M-x all-the-icons-install-fonts
+;; M-x nerd-icons-install-fonts ;; required after a recent update to doom modeline
 
-(use-package all-the-icons)
+(use-package all-the-icons
+  :if (display-graphic-p))
 
 (use-package doom-modeline
-  :init (doom-modeline-mode 1))
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
 
 (use-package doom-themes)
 
@@ -97,7 +99,7 @@
  '(custom-safe-themes
    '("8c7e832be864674c220f9a9361c851917a93f921fedb7717b1b5ece47690c098" default))
  '(package-selected-packages
-   '(all-the-icons doom-themes helpful ivy-rich which-key rainbow-delimiters doom-modeline counsel command-log-mode)))
+   '(2048-game general all-the-icons doom-themes helpful ivy-rich which-key rainbow-delimiters doom-modeline counsel command-log-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -126,5 +128,58 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
+;; These are two examples of basic keybindings, both global and for a specific mode
+;; However, see below for the more preferred method of keybinding using general
+;;(global-set-key (kbd "C-M-j") 'counsel-switch-buffer)
+;;(define-key emacs-lisp-mode-map (kbd "C-x M-t") 'counsel-load-theme)
+
+(use-package general
+  :config
+  (general-create-definer m33k/leader-keys
+    :keymaps '(normal insert visual emacs)
+    ;:prefix "C-SPC")
+    :global-prefix "C-SPC")
+
+  (m33k/leader-keys
+   "t"  '(:ignore t :which-key "toggles")
+   "tt" '(counsel-load-theme :which-key "choose theme")))
+
+(general-define-key
+ "C-M-j" 'counsel-switch-buffer)
+
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  ;; Use visual line motions even outside of visual-line-mode buffers
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
+(use-package hydra)
+
+(defhydra hydra-text-scale (:timeout 4)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
+
+(m33k/leader-keys
+  "ts" '(hydra-text-scale/body :which-key "scale text"))
+
 ;;(load-theme 'tango-dark)
-(load-theme 'doom-dracula)
+(load-theme 'doom-dracula t)
