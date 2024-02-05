@@ -99,7 +99,7 @@
  '(custom-safe-themes
    '("8c7e832be864674c220f9a9361c851917a93f921fedb7717b1b5ece47690c098" default))
  '(package-selected-packages
-   '(2048-game general all-the-icons doom-themes helpful ivy-rich which-key rainbow-delimiters doom-modeline counsel command-log-mode)))
+   '(projectile 2048-game general all-the-icons doom-themes helpful ivy-rich which-key rainbow-delimiters doom-modeline counsel command-log-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -183,3 +183,13 @@
 
 ;;(load-theme 'tango-dark)
 (load-theme 'doom-dracula t)
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/Projects/Code")
+    (setq projectile-project-search-path '("~Projects/Code")))
+  (setq projectile-switch-project-action #'projectile-dired))
